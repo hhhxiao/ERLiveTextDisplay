@@ -2,6 +2,7 @@
 #define MEM_H
 // clang-format off
 #include <Windows.h>
+#include <cstdint>
 #include <ios>
 #include <sstream>
 #include <Psapi.h>
@@ -11,6 +12,7 @@
 #include <iomanip>
 #include <wingdi.h>
 #include <winnt.h>
+#include <winscard.h>
 #include "logger.h"
 // clang-format on
 #include <sstream>
@@ -18,11 +20,6 @@
 #include <vector>
 
 namespace mem {
-    template <unsigned int IIdx, typename TRet, typename... TArgs>
-    static inline auto CallVFunc(void *thisptr, TArgs... argList) -> TRet {
-        using Fn = TRet(__thiscall *)(void *, decltype(argList)...);
-        return (*static_cast<Fn **>(thisptr))[IIdx](thisptr, argList...);
-    }
 
     inline uintptr_t FindSig(const char *moduleName, const char *signature) {
         HMODULE moduleHandle = GetModuleHandleA(moduleName);
@@ -64,7 +61,17 @@ namespace mem {
         return 0;
     }
 
-    inline uintptr_t FindSig(const char *signature) { return FindSig("Minecraft.Windows.exe", signature); }
+    inline uintptr_t FindSig(const char *signature) { return FindSig("eldenring.exe", signature); }
+
+    inline uintptr_t FingSigWithOffset(const char *signature, uint64_t offset, uint64_t additional) {
+        auto addr = FindSig(signature);
+        if (addr == 0) {
+            ERR("Can't found Signature: [%s]", signature);
+            return 0;
+        }
+        return addr + *reinterpret_cast<int32_t *>(addr + offset) + additional;
+    }
+
     inline uintptr_t va2rva(uintptr_t va) { return va - reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)); }
     inline uintptr_t rva2va(uintptr_t rva) { return rva + reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)); }
 

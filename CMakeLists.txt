@@ -15,6 +15,7 @@ add_library(
         #core
         core/hooks.cpp
         tools/logger.cpp
+        er.cpp
         )
 
 target_link_libraries(ER_LIB ${PROJECT_SOURCE_DIR}/third/minhook/MinHook.x64.lib)
@@ -22,4 +23,3 @@ target_link_libraries(ER_LIB ${PROJECT_SOURCE_DIR}/third/minhook/MinHook.x64.lib
 # DLL
 add_library(EROutPlay  SHARED dllmain.cpp)
 target_link_libraries(EROutPlay ER_LIB)
-
