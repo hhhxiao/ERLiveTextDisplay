@@ -1,19 +1,17 @@
 #ifndef ER_H
 #define ER_H
-
-#include <cstdint>
 namespace er {
-    void init_hooks();
+    // void init_hooks();
 
-    struct GameDataMan {
-        uint8_t gap[0x94];
-        uint32_t death_count;
-        static GameDataMan*& instance();
-    };
+    void init_signatures();
 
-    // apis
+    void try_refresh_instances();
 
-    uint64_t playerDeathCount();
+    namespace api {
+        int death_count();
+        int today_death_count();
+
+    }  // namespace api
 }  // namespace er
 
 #endif

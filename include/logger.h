@@ -7,4 +7,5 @@
 void log(const char *function_name, const char *fmt, ...);
 void error(const char *function_name, const char *fmt, ...);
 void debug(const char *function_name, const char *fmt, ...);
+void init_logger();
 #endif

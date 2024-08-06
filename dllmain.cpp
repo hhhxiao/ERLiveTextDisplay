@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <io.h>
 // clang-format of
+#include <Windows.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -11,11 +12,12 @@
 #include <exception>
 #include <thread>
 
+#include "config.h"
 #include "er.h"
-#include "hooks.h"
 #include "include/logger.h"
+#include "include/misc.h"
 #include "logger.h"
-#include "mem.h"
+#include "outputer.h"
 
 void openConsole() {
     if (AllocConsole()) {
@@ -38,29 +40,26 @@ void openConsole() {
 
 // 各种初始化
 DWORD WINAPI start(LPVOID lpParam) {
-    openConsole();
-    LOG("Dll injected");
-    LOG("Process base address is: 0x%lx", mem::va2rva(0));
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    if (!hooks::initilize()) {
-        LOG("Can not initilize Hooks");
-    } else {
-        LOG("Hooks initilize finished");
+    // openConsole();
+    config::init();
+    if (config::debug_mode()) {
+        openConsole();
+        system("chcp 65001");
     }
-    LOG("Setup finished");
-    volatile bool stop = false;
-    while (!stop) {
-        std::this_thread::sleep_for(std::chrono::seconds(4));
-        //   LOG("Loop!");
-        auto ctr = er::playerDeathCount();
-        uint32_t death = 0;
-        if (ctr > 0) {
-            death = ((er::GameDataMan*)(uint64_t)(ctr))->death_count;
-            LOG("Player Death count %d %p (%p)", death, &(((er::GameDataMan*)(uint64_t)(ctr))->death_count),
-                er::playerDeathCount());
-        }
-    }
+    config::print_all_info();
+    DBG("Mod Injected!");
 
+    // main thread
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    er::init_signatures();
+    AbstractOutputer* outputer = new TextOutputer();
+    volatile bool running{true};
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::seconds(config::refresh_cycle()));
+        er::try_refresh_instances();
+        outputer->update();
+    }
+    delete outputer;
     ExitThread(0);
 }
 

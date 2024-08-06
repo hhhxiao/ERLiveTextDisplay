@@ -10,16 +10,36 @@ include_directories(${PROJECT_SOURCE_DIR}/third)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_compile_options(/wd4819)
-add_library(
-        ER_LIB
-        #core
-        core/hooks.cpp
-        tools/logger.cpp
-        er.cpp
-        )
+# add_library(
+#         ER_LIB
+#         core/er.cpp
+#         core/hooks.cpp
+#         core/outputer.cpp
+#         core/config.cpp
+#         tools/logger.cpp
+#         tools/misc.cpp
+#         )
+include(FetchContent)
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt
+  GIT_TAG        e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
+FetchContent_MakeAvailable(fmt)
 
-target_link_libraries(ER_LIB ${PROJECT_SOURCE_DIR}/third/minhook/MinHook.x64.lib)
 
 # DLL
-add_library(EROutPlay  SHARED dllmain.cpp)
-target_link_libraries(EROutPlay ER_LIB)
+add_library(ERLiveDisplay  
+SHARED dllmain.cpp
+        core/er.cpp
+        core/hooks.cpp
+        core/outputer.cpp
+        core/config.cpp
+        tools/logger.cpp
+        tools/misc.cpp
+
+    
+
+)
+
+target_link_libraries(ERLiveDisplay ${PROJECT_SOURCE_DIR}/third/minhook/MinHook.x64.lib fmt::fmt)
+# target_link_libraries(ERLiveDisplay ER_LIB)

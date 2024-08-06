@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <vector>
 
 // void log(const char *file_name, const char *function_name, size_t line, const char *fmt, ...) {}
 
@@ -29,6 +30,10 @@ namespace {
     }
 
 }  // namespace
+
+void init_logger() {
+    // todo: write log to file
+}
 
 void log(const char *function_name, const char *fmt, ...) {
     va_list args;
